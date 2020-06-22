@@ -84,8 +84,8 @@ func (ich Itemchan) Sort() Itemchan {
 		tmp := Items{}
 		for item := range ich {
 			tmp = append(tmp, item)
-			sort.Stable(tmp)
 		}
+		sort.Stable(tmp)
 
 		for _, item := range tmp {
 			och <- item

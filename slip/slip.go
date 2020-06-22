@@ -83,8 +83,8 @@ func (ich Slipchan) Sort() Slipchan {
 		tmp := Slips{}
 		for slip := range ich {
 			tmp = append(tmp, slip)
-			sort.Stable(tmp)
 		}
+		sort.Stable(tmp)
 
 		for _, slip := range tmp {
 			och <- slip
