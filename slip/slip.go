@@ -78,19 +78,17 @@ func Cat(filename string) Slipchan {
 // Sort Slip
 func (ich Slipchan) Sort() Slipchan {
 	och := make(Slipchan)
-	go sortgo(ich, och)
+	go func(ich, och chan Slip) {
+		defer close(och)
+		tmp := Slips{}
+		for slip := range ich {
+			tmp = append(tmp, slip)
+			sort.Stable(tmp)
+		}
+
+		for _, slip := range tmp {
+			och <- slip
+		}
+	}(ich, och)
 	return och
-}
-
-func sortgo(ich, och chan Slip) {
-	defer close(och)
-	tmp := Slips{}
-	for slip := range ich {
-		tmp = append(tmp, slip)
-		sort.Stable(tmp)
-	}
-
-	for _, slip := range tmp {
-		och <- slip
-	}
 }

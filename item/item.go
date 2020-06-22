@@ -79,19 +79,17 @@ func Cat(filename string) Itemchan {
 // Sort item
 func (ich Itemchan) Sort() Itemchan {
 	och := make(Itemchan)
-	go sortgo(ich, och)
+	go func(ich, och chan Item) {
+		defer close(och)
+		tmp := Items{}
+		for item := range ich {
+			tmp = append(tmp, item)
+			sort.Stable(tmp)
+		}
+
+		for _, item := range tmp {
+			och <- item
+		}
+	}(ich, och)
 	return och
-}
-
-func sortgo(ich, och chan Item) {
-	defer close(och)
-	tmp := Items{}
-	for item := range ich {
-		tmp = append(tmp, item)
-		sort.Stable(tmp)
-	}
-
-	for _, item := range tmp {
-		och <- item
-	}
 }
