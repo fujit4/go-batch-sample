@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+
+	// Cat sample
 	fmt.Println("#### data/item.csv ####")
 	for item := range item.Cat("data/item.csv") {
 		fmt.Println(item.Code, item.Name)
@@ -15,6 +17,7 @@ func main() {
 
 	fmt.Println("")
 
+	// Cat sample
 	fmt.Println("#### data/slip.csv ####")
 	for slip := range slip.Cat("data/slip.csv") {
 		fmt.Println(slip.No, slip.ItemCode, slip.Count)
@@ -22,10 +25,8 @@ func main() {
 
 	fmt.Println("")
 
+	// Cat, Sort and Matching sample
 	fmt.Println("#### merged slipitem ####")
-	// items := item.Cat("data/item.csv").Sort()
-	// slips := slip.Cat("data/slip.csv").Sort()
-
 	for slipItem := range slipitem.Match(
 		slip.Cat("data/slip.csv").Sort(),
 		item.Cat("data/item.csv").Sort()) {
