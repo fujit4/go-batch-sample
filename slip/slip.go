@@ -36,46 +36,43 @@ func (slips Slips) Less(i, j int) bool {
 // Cat reads file and return Slip Chan
 func Cat(filename string) Slipchan {
 	ch := make(Slipchan)
-	go catgo(filename, ch)
-	return ch
-}
+	go func(filename string, ch Slipchan) {
+		defer close(ch)
 
-// catgo is used in Cat method
-func catgo(filename string, ch Slipchan) {
-	defer close(ch)
-
-	// file open
-	file, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	// read while file end
-	reader := csv.NewReader(file)
-	//	reader.Comma = '\t'
-
-	for {
-		line, err := reader.Read()
-
-		switch err {
-		case nil:
-			// format to slip
-			slip := Slip{}
-			slip.No = line[0]
-			slip.ItemCode = line[1]
-			slip.Count, _ = strconv.Atoi(line[2])
-
-			// send to channel
-			ch <- slip
-
-		case io.EOF:
-			return
-
-		default:
+		// file open
+		file, err := os.Open(filename)
+		if err != nil {
 			panic(err)
 		}
-	}
+		defer file.Close()
+
+		// read while file end
+		reader := csv.NewReader(file)
+		//	reader.Comma = '\t'
+
+		for {
+			line, err := reader.Read()
+
+			switch err {
+			case nil:
+				// format to slip
+				slip := Slip{}
+				slip.No = line[0]
+				slip.ItemCode = line[1]
+				slip.Count, _ = strconv.Atoi(line[2])
+
+				// send to channel
+				ch <- slip
+
+			case io.EOF:
+				return
+
+			default:
+				panic(err)
+			}
+		}
+	}(filename, ch)
+	return ch
 }
 
 // Sort Slip

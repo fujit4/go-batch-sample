@@ -37,45 +37,43 @@ func (items Items) Less(i, j int) bool {
 // Cat reads file and retruns Item chan
 func Cat(filename string) Itemchan {
 	ch := make(chan Item)
-	go catgo(filename, ch)
-	return ch
-}
+	go func(filename string, ch chan Item) {
+		defer close(ch)
 
-// catgo is used in Cat method
-func catgo(filename string, ch chan Item) {
-	defer close(ch)
-
-	// file open
-	file, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	// read while file end
-	reader := csv.NewReader(file)
-	//	reader.Comma = '\t'
-
-	for {
-		line, err := reader.Read()
-
-		switch err {
-		case nil:
-			// format to Item
-			item := Item{}
-			item.Code = line[0]
-			item.Name = line[1]
-
-			// send to channel
-			ch <- item
-
-		case io.EOF:
-			return
-
-		default:
+		// file open
+		file, err := os.Open(filename)
+		if err != nil {
 			panic(err)
 		}
-	}
+		defer file.Close()
+
+		// read while file end
+		reader := csv.NewReader(file)
+		//	reader.Comma = '\t'
+
+		for {
+			line, err := reader.Read()
+
+			switch err {
+			case nil:
+				// format to Item
+				item := Item{}
+				item.Code = line[0]
+				item.Name = line[1]
+
+				// send to channel
+				ch <- item
+
+			case io.EOF:
+				return
+
+			default:
+				panic(err)
+			}
+		}
+	}(filename, ch)
+
+	return ch
 }
 
 // Sort item
