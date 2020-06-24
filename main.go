@@ -25,7 +25,7 @@ func main() {
 
 	fmt.Println("")
 
-	// Cat, Filter, Sort and Matching sample
+	// Cat, Filter, Sort, Matching and stdout sample
 	fmt.Println("#### merged slipitem ####")
 	for slipItem := range slipitem.Match(
 		// tr: cat -> filter -> sort
@@ -41,4 +41,17 @@ func main() {
 		// println
 		fmt.Println(slipItem.No, slipItem.ItemCode, slipItem.ItemName, slipItem.Count)
 	}
+
+	// Cat, Filter, Sort, Matching and file out sample
+	slipitem.Match(
+		// tr: cat -> filter -> sort
+		slip.Cat("data/slip.csv").Filter(func(slip slip.Slip) bool {
+			return slip.No >= "20000"
+		}).Sort(func(slips slip.Slips, i, j int) bool {
+			return slips[i].ItemCode < slips[j].ItemCode
+		}),
+		// ma: cat -> sort
+		item.Cat("data/item.csv").Sort(func(items item.Items, i, j int) bool {
+			return items[i].Code < items[j].Code
+		})).Out("data/slipItem.csv")
 }

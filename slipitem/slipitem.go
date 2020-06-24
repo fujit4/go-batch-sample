@@ -1,8 +1,10 @@
 package slipitem
 
 import (
+	"fmt"
 	"go-batch-sample/item"
 	"go-batch-sample/slip"
+	"os"
 )
 
 // SlipItem is marged structure of slip and item
@@ -56,4 +58,16 @@ func Match(trch slip.Slipchan, mach item.Itemchan) SlipItemchan {
 	}(trch, mach, outch)
 
 	return outch
+}
+
+// Out writes file
+func (ch SlipItemchan) Out(filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	for slipItem := range ch {
+		fmt.Fprintln(file, slipItem.No, ",", slipItem.ItemCode, ",", slipItem.ItemName, ",", slipItem.Count)
+	}
 }
