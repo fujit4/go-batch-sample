@@ -25,7 +25,7 @@ func main() {
 
 	fmt.Println("")
 
-	// Cat, Sort and Matching sample
+	// Cat, Filter, Sort and Matching sample
 	fmt.Println("#### merged slipitem ####")
 	for slipItem := range slipitem.Match(
 		// tr: cat -> filter -> sort
