@@ -92,3 +92,17 @@ func (ich Slipchan) Sort() Slipchan {
 	}(ich, och)
 	return och
 }
+
+// Filter method filters by test method
+func (ich Slipchan) Filter(test func(slip Slip) bool) Slipchan {
+	och := make(Slipchan)
+	go func(ich, och chan Slip) {
+		defer close(och)
+		for slip := range ich {
+			if test(slip) {
+				och <- slip
+			}
+		}
+	}(ich, och)
+	return och
+}
