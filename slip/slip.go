@@ -21,18 +21,6 @@ type Slipchan chan Slip
 // Slips enables Sort method
 type Slips []Slip
 
-func (slips Slips) Len() int {
-	return len(slips)
-}
-
-func (slips Slips) Swap(i, j int) {
-	slips[i], slips[j] = slips[j], slips[i]
-}
-
-func (slips Slips) Less(i, j int) bool {
-	return slips[i].ItemCode < slips[j].ItemCode
-}
-
 // Cat reads file and return Slip Chan
 func Cat(filename string) Slipchan {
 	ch := make(Slipchan)
@@ -76,17 +64,20 @@ func Cat(filename string) Slipchan {
 }
 
 // Sort Slip
-func (ich Slipchan) Sort() Slipchan {
+func (ich Slipchan) Sort(sortfn func(slips Slips, i, j int) bool) Slipchan {
 	och := make(Slipchan)
 	go func(ich, och chan Slip) {
 		defer close(och)
-		tmp := Slips{}
+		tmpSlips := Slips{}
 		for slip := range ich {
-			tmp = append(tmp, slip)
+			tmpSlips = append(tmpSlips, slip)
 		}
-		sort.Stable(tmp)
 
-		for _, slip := range tmp {
+		sort.SliceStable(tmpSlips, func(i, j int) bool {
+			return sortfn(tmpSlips, i, j)
+		})
+
+		for _, slip := range tmpSlips {
 			och <- slip
 		}
 	}(ich, och)

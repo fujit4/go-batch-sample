@@ -31,9 +31,13 @@ func main() {
 		// tr: cat -> filter -> sort
 		slip.Cat("data/slip.csv").Filter(func(slip slip.Slip) bool {
 			return slip.No >= "20000"
-		}).Sort(),
+		}).Sort(func(slips slip.Slips, i, j int) bool {
+			return slips[i].ItemCode < slips[j].ItemCode
+		}),
 		// ma: cat -> sort
-		item.Cat("data/item.csv").Sort()) {
+		item.Cat("data/item.csv").Sort(func(items item.Items, i, j int) bool {
+			return items[i].Code < items[j].Code
+		})) {
 		// println
 		fmt.Println(slipItem.No, slipItem.ItemCode, slipItem.ItemName, slipItem.Count)
 	}

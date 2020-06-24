@@ -19,21 +19,6 @@ type Itemchan chan Item
 // Items enables Sort method
 type Items []Item
 
-// Len is for Sort
-func (items Items) Len() int {
-	return len(items)
-}
-
-// Swap is for Sort
-func (items Items) Swap(i, j int) {
-	items[i], items[j] = items[j], items[i]
-}
-
-// Less is for Sort by Item.Code asc
-func (items Items) Less(i, j int) bool {
-	return items[i].Code < items[j].Code
-}
-
 // Cat reads file and retruns Item chan
 func Cat(filename string) Itemchan {
 	ch := make(chan Item)
@@ -77,17 +62,20 @@ func Cat(filename string) Itemchan {
 }
 
 // Sort item
-func (ich Itemchan) Sort() Itemchan {
+func (ich Itemchan) Sort(sortfn func(items Items, i, j int) bool) Itemchan {
 	och := make(Itemchan)
 	go func(ich, och chan Item) {
 		defer close(och)
-		tmp := Items{}
+		tmpItems := Items{}
 		for item := range ich {
-			tmp = append(tmp, item)
+			tmpItems = append(tmpItems, item)
 		}
-		sort.Stable(tmp)
+		//		sort.Stable(tmpItems)
+		sort.SliceStable(tmpItems, func(i, j int) bool {
+			return sortfn(tmpItems, i, j)
+		})
 
-		for _, item := range tmp {
+		for _, item := range tmpItems {
 			och <- item
 		}
 	}(ich, och)
